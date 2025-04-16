@@ -7,6 +7,7 @@ class User(models.Model):
     number = models.CharField(max_length=20, verbose_name="Номер телефона человека", null=True, blank=True)
     telegram_id = models.CharField(max_length=100, verbose_name="Телеграмм айди человека")
     rating = models.FloatField(verbose_name="Рейтинг", null=True, blank=True)
+
     is_driver = models.BooleanField(default=False, verbose_name="Является ли водителем", null=True, blank=True)
     is_user = models.BooleanField(default=False, verbose_name="Является ли пользователем", null=True, blank=True)
     is_admin = models.BooleanField(default=False, verbose_name="Является ли администратором", null=True, blank=True)
@@ -31,6 +32,6 @@ class Ride(models.Model):
         blank=True,
     )
     is_active = models.BooleanField(default=False, verbose_name="Статус поездки", null=True, blank=True)
-    cost = models.CharField(max_length=100, verbose_name="Стоимость поездки", null=True, blank=True),
-    adress_start = models.CharField(max_length=100, verbose_name="Адрес начала поездки", null=True, blank=True),
-    adress_end = models.CharField(max_length=100, verbose_name="Адрес конца поездки", null=True, blank=True)
+    cost = models.CharField(max_length=100, verbose_name="Стоимость поездки", default="100", null=True, blank=True),
+    adress_start = models.CharField(max_length=100, verbose_name="Адрес начала поездки", default="Не выбрано", null=True, blank=True),
+    adress_end = models.CharField(max_length=100, verbose_name="Адрес конца поездки", default="Не выбрано", null=True, blank=True)
