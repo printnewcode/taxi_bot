@@ -33,5 +33,15 @@ class Ride(models.Model):
     )
     is_active = models.BooleanField(default=False, verbose_name="Статус поездки", null=True, blank=True)
     cost = models.CharField(max_length=100, verbose_name="Стоимость поездки", default="100", null=True, blank=True),
-    adress_start = models.CharField(max_length=100, verbose_name="Адрес начала поездки", default="Не выбрано", null=True, blank=True),
-    adress_end = models.CharField(max_length=100, verbose_name="Адрес конца поездки", default="Не выбрано", null=True, blank=True)
+    adress_start = models.CharField(max_length=100, verbose_name="Адрес начала поездки", default="Не выбрано",
+                                    null=True, blank=True),
+    adress_end = models.CharField(max_length=100, verbose_name="Адрес конца поездки", default="Не выбрано", null=True,
+                                  blank=True)
+    pay_type = models.CharField(
+        max_length=50,
+        verbose_name="Тип оплаты",
+        default="Не выбрано",
+        choices=[("money", "Наличными"), ("payment_transfer", "Переводом")],
+        null=True,
+        blank=True
+    )

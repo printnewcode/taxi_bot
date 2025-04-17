@@ -1,10 +1,11 @@
-from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
+from telebot.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, \
+    KeyboardButton
 
 from bot import bot
 from bot.texts import START_TEXT
+from bot.keyboards import PAY_TYPE_KEYBOARD
 from bot.models import User, Ride
 from .user import call_taxi
-
 
 URL = "https://satellite-map.gosur.com/ru/google-earth/?ll=54.31547352165194,48.36413993118936&z=18.33342107735938&t=streets"
 
@@ -40,14 +41,15 @@ def register_cost(message, user_id, ride):
 def edit_geo_start(call: CallbackQuery):
     """Изменение адреса старта поездки"""
     _, user_id, ride_id = call.data.split("_")
-    
+
     ride = Ride.objects.get(pk=ride_id)
 
     markup = ReplyKeyboardMarkup()
     btn = KeyboardButton(text="Отправить геолокацию", request_location=True)
     markup.add(btn)
 
-    msg = bot.send_message(text="Установите адрес начала поездки\n\nМожно отправить как текстом, так и нажав на кнопку", chat_id=user_id, reply_markup=markup)
+    msg = bot.send_message(text="Установите адрес начала поездки\n\nМожно отправить как текстом, так и нажав на кнопку",
+                           chat_id=user_id, reply_markup=markup)
     bot.register_next_step_handler(msg, register_geo_start, user_id, ride)
 
 
@@ -63,7 +65,7 @@ def register_geo_start(message, user_id, ride):
         return
     ride.adress_start = f"{latitude}/{longitude}"
     ride.save()
-    
+
     call_taxi(message, status=1, pk_=ride.pk)
     return
 
@@ -71,10 +73,12 @@ def register_geo_start(message, user_id, ride):
 def edit_geo_end(call: CallbackQuery):
     """Изменение адреса конца поездки"""
     _, user_id, ride_id = call.data.split("_")
-    
+
     ride = Ride.objects.get(pk=ride_id)
 
-    msg = bot.send_message(text="Установите адрес конца поездки\n\nМожно отправить как текстом, так и с помощью телеграмма", chat_id=user_id)
+    msg = bot.send_message(
+        text="Установите адрес конца поездки\n\nМожно отправить как текстом, так и с помощью телеграмма",
+        chat_id=user_id)
     bot.register_next_step_handler(msg, register_geo_start, user_id, ride)
 
 
@@ -90,6 +94,33 @@ def register_geo_start(message, user_id, ride):
         return
     ride.adress_end = f"{latitude}/{longitude}"
     ride.save()
-    
+
+    call_taxi(message, status=1, pk_=ride.pk)
+    return
+
+
+def edit_pay_type(call: CallbackQuery):
+    """Получение типа оплаты пользователя"""
+    _, user_id, ride_id = call.data.split("_")
+
+    ride = Ride.objects.get(pk=ride_id)
+
+    msg = bot.send_message(
+        text="Установите тип оплаты поездки",
+        chat_id=user_id,
+        reply_markup=PAY_TYPE_KEYBOARD
+    )
+    bot.register_next_step_handler(msg, register_geo_start, user_id, ride)
+
+
+def register_pay_type(message, user_id, ride):
+    """Запись Типа оплаты в DB"""
+    if message.text != "Наличными" or message.text != "Переводом":
+        bot.send_message(text="Пожалуйста выберите тип оплаты из предложенных", chat_id=user_id)
+        call_taxi(message, status=1, pk_=ride.pk)
+        return
+    ride.pay_type = "money" if message.text == "Наличными" else "payment_transfer"
+    ride.save()
+
     call_taxi(message, status=1, pk_=ride.pk)
     return
